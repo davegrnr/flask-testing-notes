@@ -1,0 +1,145 @@
+[2]WHY TEST
+TESTING AIN’T THE SEXIEST, BUT IS VERY IMPORTANT
+#1 thing employers ask us about!
+It will give you peace of mind as a developer
+Automated tests are good for testing things that “should work”, anticipating the unexpected, and making sure new things don't break existing code
+
+
+
+[3] KINDS OF TESTING
+Unit Test: does this individual component work?
+Integration Testing: Do the components work together?
+End to End Testing: Test the entire pipeline
+
+
+
+
+[4] ASSERT
+Not a great way to test comprehension. One of the oldest testing abilities in python. Not that commonly used
+Unit Tests
+Tests one “unit” of functionality.
+Does NOT test integration of components
+Promotes modular code - write code with testing in mind
+Assert
+Expecting some condition to be true. If it is not true, raise an error
+// assert function(param, param) == outcome, “message to display” //
+Stops execution as soon as it detects a failure 
+
+
+[5] DOCTEST REVIEW
+THEY ARE AWESOME!
+Run your function directly inside python
+Looks like in the command line: python -m doctest <file_name> OR in verbose mode:		python -m doctest -v <file_name>
+Not great for testing entire app 
+Used to illustrate how functions work usually 
+
+
+
+[6] INTRO TO UNITTEST
+Builtin framework for testing in python
+Define all tests into classes in a separate file
+Just “from unittest import TestCase”
+class AdditionTestCase(TestCase):									def test_adder(self):											assert arithmetic.adder(2, 3) == 5
+Must start with test_
+python -m unittest <file_name>
+[7] MORE UNITTEST
+self.assertEqual(<function>(<param>, <expected>) 
+Will test to see if the params equal the expected outcome
+There is also self.assertTrue() that will test to see if the outcome is True
+Can also check false with assertFalse()
+[8] VSCODE AND UNITTEST
+Need to configure VSCode for unittesting
+[9] INTRO TO FLASK TESTING
+Integration Tests - Test Components that work together
+“Does this URL path map to a route function?”
+“Does this route return the right HTML?”
+“Does this route return the correct status code?”
+“After a POST request, are we redirected?”
+Flask comes with a test_client()
+Models the app as if it were running on a server without having to open a server
+Looks like 	with app.test_client() as client:								import pdb										pdb.set_trace()
+Or rather	with app.test_client as client:									res = client.get(‘/’)									html = res.get_data(as_text=True)																		self.assertEqual(res.status_code, 200)						self.assertIn(‘<h1>Color Form</h1>, html’)
+The above will test in that html is in the home route (/)
+
+[10] TESTING POST REQUESTS
+   def test_color_submit(self):
+       with app.test_client() as client:
+           res = client.post('/fav-color', data={'color': 'orange'})
+           html = res.get_data(as_text=True)
+ 
+           self.assertEqual(res.status_code, 200)
+           self.assertIn('<h3>Woah! I like orange, too</h3>',  html)
+Pay attention to how we get the data from that form, or pass it in rather. Then using the self.assertIn, pass in the organe param.
+“data is a dictionary - treat it as such!
+[11] TESTING REDIRECTS
+   def test_redirection(self):
+       with app.test_client() as client:
+           res = client.get('/redirect-me')
+ 
+           self.assertEqual(res.status_code, 302)
+           self.assertEqual(res.location, 'http://localhost/')
+The following will test whether we get the correct html when the redirection is followed
+   def test_redirection_followed(self):
+       with app.test_client() as client:
+           res = client.get('/redirect-me', follow_redirects=True)
+           html = res.get_data(as_text=True)
+ 
+           self.assertEqual(res.status_code, 200)
+           self.assertIn('<h1>Color Form</h1>', html)
+The follow_redirects=True we should be getting html data with status code 200
+
+[12] TESTING THE SESSION
+   def test_session_count(self):
+       with app.test_client() as client:
+           res = client.get('/')
+ 
+           self.assertEqual(res.status_code, 200)
+           self.assertEqual(session['count'], 1)
+Can set what we want in the session to test for change:
+   def test_session_count_set(self):
+       with app.test_client() as client:
+           with client.session_transaction() as change_session:
+               change_session['count'] = 999
+ 
+           res = client.get('/')
+ 
+           self.assertEqual(res.status_code, 200)
+           self.assertEqual(session['count'], 1000)
+
+[13]setUp and tearDown
+They are called before/after each test
+class FlaskTests(TestCase):
+
+
+  def setUp(self):
+      """Stuff to do before every test."""
+
+
+  def tearDown(self):
+      """Stuff to do after each test."""
+
+
+  def test_1(self):
+      ...
+
+
+  def test_2(self):
+      …
+
+
+
+[14] TESTING CONFIGURATION
+Set app.config[‘TESTING’] = True
+Kind of hacky but											app.config[‘DEBUG_TB_HOSTS’] = [‘dont-show-debug-toolbar’]
+[15] TESTING BEST PRACTICES
+Strategies for writing testable code
+Is there too much logic in my view function? If so, try to break it up
+When testing you don’t need one assertion per test function
+Remember to test failing conditions, like someone not filling out a form or forms that don’t validate.
+
+
+[16] ORGANIZING TESTS
+Run all tests with python -m unittest
+Can also run smaller portions by specifying individual file names after
+
+
